@@ -26,7 +26,7 @@ Hình ảnh trong bài viết được lấy ngẫu nhiên từ [Picsum Photos](
 
 ### 1. Clone Repository
 ```bash
-git clone 
+git clone https://github.com/anktuan/ptud-gk-de-1_new.git
 cd blog-flask
 ```
 
