@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Bài viết {{ flow_type }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4">Bài viết thuộc flow: {{ flow_type|title }}</h2>
+            
+            <div class="flow-navigation mb-4">
+                <a href="{{ url_for('views.flow_posts', flow_type='news') }}" class="btn btn-outline-primary me-2 {% if flow_type == 'news' %}active{% endif %}">
+                    Tin tức
+                </a>
+                <a href="{{ url_for('views.flow_posts', flow_type='tutorial') }}" class="btn btn-outline-primary me-2 {% if flow_type == 'tutorial' %}active{% endif %}">
+                    Hướng dẫn
+                </a>
+                <a href="{{ url_for('views.flow_posts', flow_type='review') }}" class="btn btn-outline-primary me-2 {% if flow_type == 'review' %}active{% endif %}">
+                    Đánh giá
+                </a>
+                <a href="{{ url_for('views.flow_posts', flow_type='other') }}" class="btn btn-outline-primary me-2 {% if flow_type == 'other' %}active{% endif %}">
+                    Khác
+                </a>
+            </div>
+
+            {% if posts.items %}
+                {% for post in posts.items %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h3 class="card-title">
+                            <a href="{{ url_for('posts.post_detail', slug=post.slug) }}" class="text-decoration-none text-dark">
+                                {{ post.title }}
+                            </a>
+                        </h3>
+                        {% if post.image_url %}
+                        <img src="{{ post.image_url }}" class="img-fluid rounded mb-3" alt="Ảnh bài viết" style="max-height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <p class="card-text">{{ post.content[:200] }}...</p>
+                        <div class="text-muted small">
+                            <span><i class="fas fa-user"></i> {{ post.author.username }}</span>
+                            <span class="ms-3"><i class="fas fa-clock"></i> {{ post.updated_at.strftime('%d/%m/%Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Phân trang -->
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if posts.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('views.flow_posts', flow_type=flow_type, page=posts.prev_num) }}">Trước</a>
+                        </li>
+                        {% endif %}
+
+                        {% for page_num in range(1, posts.pages + 1) %}
+                        <li class="page-item {% if page_num == posts.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('views.flow_posts', flow_type=flow_type, page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if posts.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('views.flow_posts', flow_type=flow_type, page=posts.next_num) }}">Sau</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% else %}
+                <div class="alert alert-info">
+                    Chưa có bài viết nào thuộc flow này.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

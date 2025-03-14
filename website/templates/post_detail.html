@@ -6,7 +6,24 @@
 <div class="container mt-4">
     <div class="card">
         <div class="card-body">
-            <h1 class="card-title">{{ post.title }}</h1>
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h1 class="card-title">{{ post.title }}</h1>
+                {% if user.is_authenticated and user.id != post.author.id %}
+                    {% if is_following %}
+                        <form action="{{ url_for('posts.unfollow_post', slug=post.slug) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="fas fa-heart-broken"></i> Bỏ theo dõi
+                            </button>
+                        </form>
+                    {% else %}
+                        <form action="{{ url_for('posts.follow_post', slug=post.slug) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="fas fa-heart"></i> Theo dõi
+                            </button>
+                        </form>
+                    {% endif %}
+                {% endif %}
+            </div>
             {% if post.flow %}
             <div class="mb-3">
                 <span class="badge bg-primary">{{ post.flow }}</span>
@@ -22,7 +39,16 @@
                 <small>Tác giả: {{ post.author.username }}</small>
                 <br>
                 <small>Cập nhật lần cuối: {{ post.updated_at.strftime('%d/%m/%Y %H:%M') }}</small>
+                <br>
+                <small>Số người theo dõi: {{ post.followers|length }}</small>
             </div>
+            {% if user.is_authenticated and (user.id == post.author.id or user.is_admin) %}
+            <div class="mt-3">
+                <a href="{{ url_for('posts.edit_post', slug=post.slug) }}" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Chỉnh sửa
+                </a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

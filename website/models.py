@@ -12,6 +12,7 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)
     blocked = db.Column(db.Boolean, default=False)
     posts = db.relationship('Post', backref='author', lazy=True)
+    followed_posts = db.relationship('Post', secondary='post_follow', backref='followers')
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -25,3 +26,13 @@ class Post(db.Model):
 
     def __repr__(self):
         return f'<Post {self.title}> by {self.author.username}'
+
+class PostFollow(db.Model):
+    __tablename__ = 'post_follow'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Thêm unique constraint để đảm bảo một user không thể follow một bài viết nhiều lần
+    __table_args__ = (db.UniqueConstraint('user_id', 'post_id', name='unique_user_post_follow'),)

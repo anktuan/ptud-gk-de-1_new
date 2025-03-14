@@ -1,13 +1,60 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
 from flask_login import current_user, login_required
-from .models import Post, db
+from .models import Post, PostFollow, db
 
 posts = Blueprint('posts', __name__)
 
 @posts.route('/post/<string:slug>')
 def post_detail(slug):
     post = Post.query.filter_by(slug=slug).first_or_404()
-    return render_template('post_detail.html', post=post, user=current_user)
+    is_following = False
+    if current_user.is_authenticated:
+        is_following = PostFollow.query.filter_by(user_id=current_user.id, post_id=post.id).first() is not None
+    return render_template('post_detail.html', post=post, user=current_user, is_following=is_following)
+
+@posts.route('/follow/<string:slug>', methods=['POST'])
+@login_required
+def follow_post(slug):
+    post = Post.query.filter_by(slug=slug).first_or_404()
+    if post.user_id == current_user.id:
+        flash('Bạn không thể theo dõi bài viết của chính mình', 'warning')
+        return redirect(url_for('posts.post_detail', slug=slug))
+    
+    existing_follow = PostFollow.query.filter_by(user_id=current_user.id, post_id=post.id).first()
+    if existing_follow:
+        flash('Bạn đã theo dõi bài viết này rồi', 'info')
+    else:
+        follow = PostFollow(user_id=current_user.id, post_id=post.id)
+        db.session.add(follow)
+        db.session.commit()
+        flash('Đã theo dõi bài viết thành công', 'success')
+    
+    return redirect(url_for('posts.post_detail', slug=slug))
+
+@posts.route('/unfollow/<string:slug>', methods=['POST'])
+@login_required
+def unfollow_post(slug):
+    post = Post.query.filter_by(slug=slug).first_or_404()
+    follow = PostFollow.query.filter_by(user_id=current_user.id, post_id=post.id).first()
+    
+    if follow:
+        db.session.delete(follow)
+        db.session.commit()
+        flash('Đã bỏ theo dõi bài viết', 'success')
+    else:
+        flash('Bạn chưa theo dõi bài viết này', 'info')
+    
+    return redirect(url_for('posts.post_detail', slug=slug))
+
+@posts.route('/my-follows')
+@login_required
+def my_follows():
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    followed_posts = Post.query.join(PostFollow).filter(PostFollow.user_id == current_user.id) \
+                        .order_by(Post.updated_at.desc()) \
+                        .paginate(page=page, per_page=per_page, error_out=False)
+    return render_template('followed_posts.html', posts=followed_posts, user=current_user)
 
 @posts.route('/manage-posts')
 @login_required

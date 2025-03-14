@@ -4,6 +4,22 @@
     <h2 class="mb-3"><i class="fa-solid fa-rss"></i> Danh Sách Bài Viết</h2>
   </div>
 
+  <!-- Flow Navigation -->
+  <div class="flow-navigation mb-4 text-center">
+    <a href="{{ url_for('views.flow_posts', flow_type='news') }}" class="btn btn-outline-primary me-2">
+      <i class="fas fa-newspaper"></i> Tin tức
+    </a>
+    <a href="{{ url_for('views.flow_posts', flow_type='tutorial') }}" class="btn btn-outline-primary me-2">
+      <i class="fas fa-book"></i> Hướng dẫn
+    </a>
+    <a href="{{ url_for('views.flow_posts', flow_type='review') }}" class="btn btn-outline-primary me-2">
+      <i class="fas fa-star"></i> Đánh giá
+    </a>
+    <a href="{{ url_for('views.flow_posts', flow_type='other') }}" class="btn btn-outline-primary me-2">
+      <i class="fas fa-folder"></i> Khác
+    </a>
+  </div>
+
   <div class="card p-3">
     <div class="row" id="post-list">
       <!-- Dữ liệu bài viết sẽ được load bằng AJAX -->
@@ -37,17 +53,35 @@
   const prevPageBtn = document.getElementById("prev-page");
   const nextPageBtn = document.getElementById("next-page");
 
+  function getFlowBadge(flow) {
+    const badges = {
+      'news': '<span class="badge bg-info">Tin tức</span>',
+      'tutorial': '<span class="badge bg-success">Hướng dẫn</span>',
+      'review': '<span class="badge bg-warning">Đánh giá</span>',
+      'other': '<span class="badge bg-secondary">Khác</span>'
+    };
+    return flow ? badges[flow] : '';
+  }
+
   function loadPosts(page) {
     fetch(`/api/posts?page=${page}&all=true`)
       .then((response) => response.json())
       .then((data) => {
         postList.innerHTML = "";
         data.posts.forEach((post) => {
+          const flowBadge = getFlowBadge(post.flow);
+          const imageHtml = post.image_url ? 
+            `<img src="${post.image_url}" class="card-img-top mb-3" alt="Ảnh bài viết" style="max-height: 200px; object-fit: cover;">` : '';
+          
           postList.innerHTML += `
             <div class="col-md-6 mb-4">
               <div class="card shadow-sm h-100 d-flex flex-column">
+                ${imageHtml}
                 <div class="card-body d-flex flex-column">
                   <h5 class="card-title">${post.title}</h5>
+                  <div class="mb-2">
+                    ${flowBadge}
+                  </div>
                   <p class="text-muted">
                     👤 <strong>${post.author}</strong> | 📅 ${post.updated_at}
                   </p>
