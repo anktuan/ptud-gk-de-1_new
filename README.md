@@ -19,38 +19,55 @@ Hình ảnh trong bài viết được lấy ngẫu nhiên từ [Picsum Photos](
 
 ---
 
-## Hướng Dẫn Cài Đặt
-### Yêu Cầu
-- **Python** ≥ 3.8
-- **pip** và **virtualenv** (tùy chọn)
+## Hướng dẫn cài đặt
 
-### 1. Clone Repository
+1. Clone repository:
 ```bash
 git clone https://github.com/anktuan/ptud-gk-de-1_new.git
+cd ptud-gk-de-1_new
 ```
 
-### 2. Tạo Virtual Environment (Không bắt buộc)
+2. Tạo môi trường ảo:
 ```bash
+# Windows
 python -m venv venv
-source venv/bin/activate  # Trên macOS/Linux
-venv\Scripts\activate    # Trên Windows
+venv\Scripts\activate
+
+# Linux/Mac
+python3 -m venv venv
+source venv/bin/activate
 ```
 
-### 3. Cài Đặt Thư Viện Cần Thiết
+3. Cài đặt các thư viện cần thiết:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Chạy Server 
+4. Chạy ứng dụng:
 ```bash
-khởi tạo dữ liệu ban đầu gồm admin, user test
-python .\generate_data.py
-chạy server 
 python main.py
 ```
-Mặc định server sẽ chạy tại: **http://127.0.0.1:5000/**
 
----
+5. Truy cập ứng dụng:
+- Mở trình duyệt và truy cập: http://localhost:5000
+
+## Cấu trúc thư mục
+
+flask-tiny-app/
+├── website/
+│   ├── __init__.py
+│   ├── models.py
+│   ├── views.py
+│   ├── auth.py
+│   ├── posts.py
+│   ├── admin.py
+│   ├── static/
+│   └── templates/
+├── instance/
+├── venv/
+├── main.py
+├── requirements.txt
+└── README.md
 
 ## Hướng Dẫn Sử Dụng
 ### 1. Đăng ký & Đăng nhập
